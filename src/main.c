@@ -1,110 +1,154 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<stdbool.h>
 
 #include<SDL3/SDL.h>
 
+#include"widgets/button.h"
+
 #define EDITOR_TITLE "JizzCannonIDE"
 
-enum MiscarriageEnum {
-  MISCARRIAGE_GENERAL = -1,
-};
+typedef enum AppErrors {
+  NO_ERROR,
+  INIT_ERROR,
+  CREATE_WINDOW_ERROR,
+  GET_SURFACE_ERROR,
+  PXL_FMT_ERROR,
+  FILL_BACKGROUND_ERROR,
+  UPDATE_WINDOW_ERROR,
+} AppErrors;
 
-void handleMiscarriage(const int miscarriageCode);
-void miscarriage(const char* message, const char* sdlError);
+typedef struct App {
+  int width;
+  int height;
+  char* windowTitle;
+  SDL_WindowFlags flags;
+  SDL_Window *window;
+  SDL_Surface *surface;
+  SDL_Color backgroundColor;
+} App;
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+AppErrors appInit(App *app);
+AppErrors appRenderBackground(App *app);
+void appRefresh(App *myApp, Button *button);
 
 int main(int argc, char** argv) {
-
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    handleMiscarriage(1);
-    exit(MISCARRIAGE_GENERAL);
-  }
-
-  SDL_Window *window = SDL_CreateWindow(
-        EDITOR_TITLE,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-    );
   
-  if (window == NULL) {
-    handleMiscarriage(2);
-    exit(MISCARRIAGE_GENERAL);
-  }
-
-  SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-
-  const SDL_PixelFormatDetails *surfacePxFmtDetails = SDL_GetPixelFormatDetails(screenSurface->format);
+  App myApp = {
+    640, 
+    480, 
+    EDITOR_TITLE, 
+    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE, 
+    NULL, 
+    NULL, 
+    {255, 255, 255, 1}
+  };
   
-  if (surfacePxFmtDetails == NULL) {
-    handleMiscarriage(3);
-    exit(MISCARRIAGE_GENERAL);
-  }
+  AppErrors appResult = NO_ERROR;
 
-  bool fillRect = SDL_FillSurfaceRect(
-      screenSurface,
-      NULL,
-      SDL_MapRGB(
-          surfacePxFmtDetails, NULL, 0xFF, 0xFF, 0xFF
-        )
-    );
+  appResult = appInit(&myApp);
 
-  if (fillRect == false) {
-    handleMiscarriage(4);
-    exit(MISCARRIAGE_GENERAL);
+  if (appResult != NO_ERROR) {
+    printf("An Error Occurred: %s", SDL_GetError());
+    exit(appResult); 
   }
   
-  bool updateWindow = SDL_UpdateWindowSurface(window);
+  appResult = appRenderBackground(&myApp); 
   
-  if (updateWindow == false) {
-    handleMiscarriage(5);
-    exit(MISCARRIAGE_GENERAL);
+  if (appResult != NO_ERROR) {
+    printf("An Error Occurred: %s", SDL_GetError());
+    exit(appResult);
   }
+  
+  Button myButton;
 
+  buttonGenerate(&myButton, 50, 50, 50, 50, 255, 0, 0);
+  buttonAssignSurface(&myButton, myApp.surface);
+  buttonRender(&myButton);
+
+  bool updateWindow = true; // true = NO ERROR
   SDL_Event e;
   bool quit = false;
+
   while (quit == false) {
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_EVENT_QUIT) {
-        quit = true;
+      switch (e.type) {
+        case SDL_EVENT_QUIT:
+          quit = true;
+          break;
+        case SDL_EVENT_WINDOW_RESIZED:
+          appRefresh(&myApp, &myButton);
+          break;
       }
+
+      buttonHandleEvent(&myButton, &e);
+    }
+    updateWindow = SDL_UpdateWindowSurface(myApp.window);
+    if (updateWindow == false) {
+      printf("An Error Occurred: %s", SDL_GetError());
+      exit(UPDATE_WINDOW_ERROR);
     }
   }
-  
-  // Quitting everything
-  SDL_DestroySurface(screenSurface);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
 
   return 0;
 }
 
-void handleMiscarriage(const int miscarriageCode) {
+AppErrors appInit(App *app) {
   
-  char* miscarriageMessage = "";
+  if (SDL_Init(SDL_INIT_VIDEO) == false) {
+    return INIT_ERROR;
+  }
   
-  switch (miscarriageCode) {
-    case 1:
-      miscarriageMessage = "Could not init SDL.";
-      break;
-    case 2:
-      miscarriageMessage = "Could not create window.";
-      break;
-    case 3:
-      miscarriageMessage = "Could not get PixelFormatDetails.";
-      break;
-    case 4:
-      miscarriageMessage = "Could not fill rectangle with color.";
-      break;
-    case 5:
-      miscarriageMessage = "Could not update window surface.";
-      break;
-    default:
-      miscarriageMessage = "NaE.";
+  app->window = SDL_CreateWindow(
+        app->windowTitle,
+        app->width,
+        app->height,
+        app->flags
+      );
+  
+  if (app->window == NULL) {
+    return CREATE_WINDOW_ERROR;
+  }
+  
+  app->surface = SDL_GetWindowSurface(app->window);
+
+  if (app->surface == NULL) {
+    return GET_SURFACE_ERROR;
+  }
+  
+  return NO_ERROR;
+}
+
+AppErrors appRenderBackground(App *app) {
+  const SDL_PixelFormatDetails *surfacePxFmtDetails = SDL_GetPixelFormatDetails(app->surface->format);
+  
+  if (surfacePxFmtDetails == NULL) {
+    return PXL_FMT_ERROR;
   }
 
-  printf("Miscarriage: %s. Miscarriage cause: %s", miscarriageMessage, SDL_GetError());
+  bool fillRect = SDL_FillSurfaceRect(
+      app->surface, 
+      NULL, // Lasciato null perche' deve essere tutta la finestra
+      SDL_MapRGBA(
+          surfacePxFmtDetails,
+          NULL, // La palette per ora non mi interessa
+          app->backgroundColor.r,
+          app->backgroundColor.g,
+          app->backgroundColor.b,
+          app->backgroundColor.a
+        ) 
+      );
+
+  if (fillRect == false) {
+    return FILL_BACKGROUND_ERROR;
+  }
+
+  return NO_ERROR;
+}
+
+void appRefresh(App* app, Button* button) {
+  
+  app->surface = SDL_GetWindowSurface(app->window);
+  appRenderBackground(app);
+  buttonRefresh(button, app->surface);
+
 }
