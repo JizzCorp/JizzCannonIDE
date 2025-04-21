@@ -140,6 +140,8 @@ AppErrors appRun(App* app) {
       printf("An Error Occurred: %s", SDL_GetError());
       exit(AE_UPDATE_WINDOW_ERROR);
     }
+
+    SDL_Delay(1000/60);
   }
   
   // NOTE: not needed right not?
