@@ -24,7 +24,7 @@ typedef struct App {
   SDL_Window *window;
   SDL_Surface *surface;
   SDL_Color backgroundColor;
-  DynList* appWidgets;
+  DynList appWidgets;
 } App;
 
 AppErrors appInit(App *app);

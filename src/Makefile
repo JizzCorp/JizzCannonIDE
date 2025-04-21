@@ -1,6 +1,6 @@
-GENERAL_FLAGS = -Wall -g -c
+GENERAL_FLAGS = -Wall -g -c -fsanitize=address
 SDL_FLAGS = -lSDL3
-ALL_FLAGS = -Wall -g
+ALL_FLAGS = -Wall -g -fsanitize=address
 CC = gcc
 
 all: dynList.o button.o app.o main.o 

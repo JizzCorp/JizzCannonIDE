@@ -23,8 +23,7 @@ AppErrors appInit(App *app) {
     return AE_GET_SURFACE_ERROR;
   }
   
-  DynList widgetsDynList = dynListInit(DL_WIDGET, 1);
-  app->appWidgets = &widgetsDynList;
+  app->appWidgets = dynListInit(DL_WIDGET, 1);
 
   return AE_NO_ERROR;
 }
@@ -61,8 +60,8 @@ static void appRefresh(App* app) {
   app->surface = SDL_GetWindowSurface(app->window);
   appRenderBackground(app);
   // buttonRefresh(button, app->surface);
-  for (size_t i = 0; i < app->appWidgets->usedSlots; ++i) {
-    BaseWidget currentWidget = ((BaseWidget*)app->appWidgets->actualData)[i];
+  for (size_t i = 0; i < app->appWidgets.usedSlots; ++i) {
+    BaseWidget currentWidget = ((BaseWidget*)app->appWidgets.actualData)[i];
 
     switch (currentWidget.widgetType) {
       case WT_BUTTON:
@@ -91,7 +90,7 @@ AppErrors appRun(App* app) {
   buttonAssignSurface(&myButton, app->surface);
   buttonRender(&myButton);
   
-  dynListPush(app->appWidgets, &myButton);
+  dynListPush(&app->appWidgets, &myButton);
    
   SDL_Event e;
   bool updateWindow = true, quit = false;
@@ -118,7 +117,7 @@ AppErrors appRun(App* app) {
     }
   }
   
-  dynListFree(app->appWidgets);
+  dynListFree(&app->appWidgets);
   
   return AE_NO_ERROR;
 }
