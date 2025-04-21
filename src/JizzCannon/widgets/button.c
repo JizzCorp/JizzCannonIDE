@@ -2,18 +2,18 @@
 
 #include<stdio.h>
 
-static bool isPointerIn(Button* button, const SDL_MouseMotionEvent* motion) {
+static bool isPointerIn(BaseWidget* button, const SDL_MouseMotionEvent* motion) {
   
-  if (motion->x < button->buttonRect.x) return false; // qui e' troppo a sinistra
-  if (motion->x > button->buttonRect.x + button->buttonRect.w) return false; // qui e' troppo a destra
-  if (motion->y < button->buttonRect.y) return false; // troppo sopra
-  if (motion->y > button->buttonRect.y + button->buttonRect.h) return false; // troppo sotto
+  if (motion->x < button->widgetRect.x) return false;
+  if (motion->x > button->widgetRect.x + button->widgetRect.w) return false;
+  if (motion->y < button->widgetRect.y) return false;
+  if (motion->y > button->widgetRect.y + button->widgetRect.h) return false;
   
   return true;
 }
 
 void buttonGenerate(
-    Button* button, 
+    BaseWidget* button, 
     int xc, 
     int yc, 
     int hv, 
@@ -22,30 +22,31 @@ void buttonGenerate(
     uint8_t g,
     uint8_t b
   ) {
-  button->buttonRect.x = xc;
-  button->buttonRect.y = yc;
-  button->buttonRect.h = hv;
-  button->buttonRect.w = wv;
+  button->widgetType = WT_BUTTON;
+  button->widgetRect.x = xc;
+  button->widgetRect.y = yc;
+  button->widgetRect.h = hv;
+  button->widgetRect.w = wv;
   button->colorR = r;
   button->colorG = g;
   button->colorB = b;
 }
 
-void buttonAssignSurface(Button* button, SDL_Surface* surface) {
-  button->buttonSurface = surface;
+void buttonAssignSurface(BaseWidget* button, SDL_Surface* surface) {
+  button->widgetSurface = surface;
 }
 
-void buttonRender(Button* button) {
-  const SDL_PixelFormatDetails *pxFmtDetails = SDL_GetPixelFormatDetails(button->buttonSurface->format);
+void buttonRender(BaseWidget* button) {
+  const SDL_PixelFormatDetails *pxFmtDetails = SDL_GetPixelFormatDetails(button->widgetSurface->format);
   
   if (pxFmtDetails == NULL) {
     printf("Fucked some shit up...");
     return;
   }
-  
+
   bool fillRect = SDL_FillSurfaceRect(
-        button->buttonSurface, 
-        &button->buttonRect, 
+        button->widgetSurface, 
+        &button->widgetRect, 
         SDL_MapRGB(
           pxFmtDetails, 
           NULL, 
@@ -61,12 +62,12 @@ void buttonRender(Button* button) {
   }
 }
 
-void buttonRefresh(Button* button, SDL_Surface* newSurface) {
-  button->buttonSurface = newSurface;
+void buttonRefresh(BaseWidget* button, SDL_Surface* newSurface) {
+  button->widgetSurface = newSurface;
   buttonRender(button);
 }
 
-void buttonHandleEvent(Button* button, const SDL_Event *e) {
+void buttonHandleEvent(BaseWidget* button, const SDL_Event *e) {
   switch (e->type) {
     case SDL_EVENT_MOUSE_MOTION:
       buttonHandleMouseMotion(button, isPointerIn(button, &e->motion));
@@ -85,7 +86,7 @@ void buttonHandleEvent(Button* button, const SDL_Event *e) {
   return;
 }
 
-void buttonHandleMouseMotion(Button* button, bool isIn) {
+void buttonHandleMouseMotion(BaseWidget* button, bool isIn) {
   if (isIn) {
     button->colorR = 0;
     button->colorG = 255;
@@ -100,7 +101,7 @@ void buttonHandleMouseMotion(Button* button, bool isIn) {
 }
 
 void buttonHandleMouseButton(
-    Button* button, 
+    BaseWidget* button, 
     const SDL_MouseButtonEvent *mouseEvent, 
     bool isIn
   ) {
