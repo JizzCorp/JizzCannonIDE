@@ -74,7 +74,11 @@ void buttonHandleEvent(BaseWidget* button, const SDL_Event *e) {
       break;
   
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
-      buttonHandleMouseButton(button, &e->button, isPointerIn(button, &e->motion));
+      buttonHandleMouseButtonDown(button, &e->button, isPointerIn(button, &e->motion));
+      break;
+    
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+      buttonHandleMouseMotion(button, isPointerIn(button, &e->motion));
       break;
 
     default:
@@ -100,7 +104,7 @@ void buttonHandleMouseMotion(BaseWidget* button, bool isIn) {
   return;
 }
 
-void buttonHandleMouseButton(
+void buttonHandleMouseButtonDown(
     BaseWidget* button, 
     const SDL_MouseButtonEvent *mouseEvent, 
     bool isIn

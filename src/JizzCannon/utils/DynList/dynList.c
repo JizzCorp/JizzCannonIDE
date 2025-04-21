@@ -91,7 +91,7 @@ DynList dynListInit(const DynListTypes listType, const size_t listSize) {
   
   size_t elementSize = getElementSize(listType);
 
-  void *dataPtr = calloc(listSize, listSize * elementSize);
+  void *dataPtr = calloc(listSize, elementSize);
   
   if (dataPtr == NULL) {
     DynList errorList = {listType, elementSize, listSize, 0, NULL, 1};
@@ -105,7 +105,6 @@ DynList dynListInit(const DynListTypes listType, const size_t listSize) {
 
 void dynListFree(DynList *list) {
   free(list->actualData);
-  // free(list);
 }
 
 size_t dynListLen(const DynList *list) {
@@ -148,7 +147,7 @@ void dynListPop(DynList *list, const size_t index) {
 
   --list->usedSlots;
   
-  size_t newMemSize = (list->usedSlots - 1) * list->elementSize;
+  size_t newMemSize = list->usedSlots * list->elementSize;
   void *newMemPtr = realloc(list->actualData, newMemSize);
   
   if (newMemPtr == NULL) {

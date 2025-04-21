@@ -1,10 +1,14 @@
-GENERAL_FLAGS = -Wall -g -c -fsanitize=address
+GENERAL_FLAGS = -Wall -g -c 
 SDL_FLAGS = -lSDL3
-ALL_FLAGS = -Wall -g -fsanitize=address
+ALL_FLAGS = -Wall -g 
 CC = gcc
 
 all: dynList.o button.o app.o main.o 
 	$(CC) objects/main.o objects/app.o objects/dynList.o objects/button.o -o build/jizzCannonIDE $(ALL_FLAGS) $(SDL_FLAGS)
+
+.PHONY: debug
+debug: dynList.o button.o app.o main.o 
+	$(CC) objects/main.o objects/app.o objects/dynList.o objects/button.o -o build/jizzCannonIDE $(ALL_FLAGS) $(SDL_FLAGS) -fsanitize=address
 
 .PHONY: main.o
 main.o: main.c

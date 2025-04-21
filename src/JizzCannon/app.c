@@ -1,33 +1,5 @@
 #include "app.h"
 
-AppErrors appInit(App *app) {
-  
-  if (SDL_Init(SDL_INIT_VIDEO) == false) {
-    return AE_INIT_ERROR;
-  }
-  
-  app->window = SDL_CreateWindow(
-        app->windowTitle,
-        app->width,
-        app->height,
-        app->flags
-      );
-  
-  if (app->window == NULL) {
-    return AE_CREATE_WINDOW_ERROR;
-  }
-  
-  app->surface = SDL_GetWindowSurface(app->window);
-
-  if (app->surface == NULL) {
-    return AE_GET_SURFACE_ERROR;
-  }
-  
-  app->appWidgets = dynListInit(DL_WIDGET, 1);
-
-  return AE_NO_ERROR;
-}
-
 static AppErrors appRenderBackground(App *app) {
   const SDL_PixelFormatDetails *surfacePxFmtDetails = SDL_GetPixelFormatDetails(app->surface->format);
   
@@ -59,7 +31,7 @@ static void appRefresh(App* app) {
   
   app->surface = SDL_GetWindowSurface(app->window);
   appRenderBackground(app);
-  // buttonRefresh(button, app->surface);
+
   for (size_t i = 0; i < app->appWidgets.usedSlots; ++i) {
     BaseWidget currentWidget = ((BaseWidget*)app->appWidgets.actualData)[i];
 
@@ -75,7 +47,60 @@ static void appRefresh(App* app) {
 }
 
 static void handleWidgetsEvents(App *app, SDL_Event *e) {
+  
+  // NOTE: probably not the best way to handle all events, but...
+  // it'll do for now.
+  
+  for (size_t i = 0; i < app->appWidgets.usedSlots; ++i) {
+    BaseWidget currentWidget = ((BaseWidget*)app->appWidgets.actualData)[i];
 
+    switch (currentWidget.widgetType) {
+      case WT_BUTTON:
+        buttonHandleEvent(&currentWidget, e);
+        break;
+      default:
+        break;
+    }
+  }
+
+}
+
+// NOTE: not needed right now?
+// void appFreeWidgets(App *app) {
+//
+  // for (size_t i = 0; i < app->appWidgets.usedSlots; ++i) {
+    // BaseWidget currentWidget = ((BaseWidget*)app->appWidgets.actualData)[i];
+    // SDL_free(currentWidget.widgetSurface);
+  // }
+//
+// }
+
+AppErrors appInit(App *app) {
+  
+  if (SDL_Init(SDL_INIT_VIDEO) == false) {
+    return AE_INIT_ERROR;
+  }
+  
+  app->window = SDL_CreateWindow(
+        app->windowTitle,
+        app->width,
+        app->height,
+        app->flags
+      );
+  
+  if (app->window == NULL) {
+    return AE_CREATE_WINDOW_ERROR;
+  }
+  
+  app->surface = SDL_GetWindowSurface(app->window);
+
+  if (app->surface == NULL) {
+    return AE_GET_SURFACE_ERROR;
+  }
+  
+  app->appWidgets = dynListInit(DL_WIDGET, 1);
+
+  return AE_NO_ERROR;
 }
 
 AppErrors appRun(App* app) {
@@ -117,7 +142,12 @@ AppErrors appRun(App* app) {
     }
   }
   
+  // NOTE: not needed right not?
+  // appFreeWidgets(app);
+
   dynListFree(&app->appWidgets);
   
+  SDL_Quit();
+
   return AE_NO_ERROR;
 }

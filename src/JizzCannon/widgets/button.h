@@ -5,15 +5,6 @@
 
 #include"baseWidget.h"
 
-// typedef struct BaseWidget {
-//
-  // SDL_Surface* buttonSurface;
-  // SDL_Rect buttonRect;
-  // uint8_t colorR;
-  // uint8_t colorG;
-  // uint8_t colorB;
-// } BaseWidget;
-
 void buttonGenerate(
     BaseWidget* button, 
     int xc, 
@@ -35,7 +26,7 @@ void buttonHandleEvent(BaseWidget* button, const SDL_Event *e);
 
 void buttonHandleMouseMotion(BaseWidget* button, bool isIn);
 
-void buttonHandleMouseButton(
+void buttonHandleMouseButtonDown(
     BaseWidget* button, 
     const SDL_MouseButtonEvent *mouseEvent, 
     bool isIn
