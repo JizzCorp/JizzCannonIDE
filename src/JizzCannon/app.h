@@ -2,6 +2,7 @@
 #define APP_H
 
 #include<SDL3/SDL.h>
+#include<SDL3_ttf/SDL_ttf.h>
 
 #include"utils/DynList/dynList.h"
 #include"widgets/button.h"
@@ -9,8 +10,10 @@
 typedef enum AppErrors {
   AE_NO_ERROR,
   AE_INIT_ERROR,
+  AE_TTF_INIT_ERROR,
   AE_CREATE_WINDOW_ERROR,
   AE_GET_SURFACE_ERROR,
+  AE_OPEN_FONT_ERROR,
   AE_PXL_FMT_ERROR,
   AE_FILL_BACKGROUND_ERROR,
   AE_UPDATE_WINDOW_ERROR,
@@ -19,12 +22,17 @@ typedef enum AppErrors {
 typedef struct App {
   int width;
   int height;
+
   char* windowTitle;
   SDL_WindowFlags flags;
   SDL_Window *window;
   SDL_Surface *surface;
   SDL_Color backgroundColor;
   DynList appWidgets;
+  
+  TTF_Font* mainFont;
+  char* mainFontPath;
+  float mainFontDefaultSize;
 } App;
 
 AppErrors appInit(App *app);

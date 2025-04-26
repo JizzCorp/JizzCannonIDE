@@ -1,5 +1,5 @@
 GENERAL_FLAGS = -Wall -g -c 
-SDL_FLAGS = -lSDL3
+SDL_FLAGS = -lSDL3 -lSDL3_ttf
 ALL_FLAGS = -Wall -g 
 CC = gcc
 

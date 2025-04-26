@@ -1,5 +1,10 @@
 #include "app.h"
 
+static char* findFontPath() {
+  // TODO: actually try to find a font in the system
+  return "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
+}
+
 static AppErrors appRenderBackground(App *app) {
   const SDL_PixelFormatDetails *surfacePxFmtDetails = SDL_GetPixelFormatDetails(app->surface->format);
   
@@ -81,6 +86,10 @@ AppErrors appInit(App *app) {
     return AE_INIT_ERROR;
   }
   
+  if (!TTF_Init()) {
+    return AE_TTF_INIT_ERROR;
+  }
+  
   app->window = SDL_CreateWindow(
         app->windowTitle,
         app->width,
@@ -99,7 +108,15 @@ AppErrors appInit(App *app) {
   }
   
   app->appWidgets = dynListInit(DL_WIDGET, 1);
-
+  app->mainFontPath = findFontPath();
+  app->mainFontDefaultSize = (float)11.0f; 
+  
+  app->mainFont = TTF_OpenFont(app->mainFontPath, app->mainFontDefaultSize);
+  
+  if (app->mainFont == NULL) {
+    return AE_OPEN_FONT_ERROR; 
+  }
+  
   return AE_NO_ERROR;
 }
 
@@ -111,7 +128,7 @@ AppErrors appRun(App* app) {
   appResult = appRenderBackground(app);
   
   BaseWidget myButton;
-  buttonGenerate(&myButton, 50, 50, 50, 50, 255, 0, 0);
+  buttonGenerate(&myButton, app->mainFont, 0, 0, 25, 100, 255, 0, 0);
   buttonAssignSurface(&myButton, app->surface);
   buttonRender(&myButton);
   
@@ -144,7 +161,7 @@ AppErrors appRun(App* app) {
     SDL_Delay(1000/60);
   }
   
-  // NOTE: not needed right not?
+  // NOTE: not needed right now?
   // appFreeWidgets(app);
 
   dynListFree(&app->appWidgets);

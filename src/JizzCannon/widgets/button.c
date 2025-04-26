@@ -14,6 +14,7 @@ static bool isPointerIn(BaseWidget* button, const SDL_MouseMotionEvent* motion) 
 
 void buttonGenerate(
     BaseWidget* button, 
+    TTF_Font* buttonFont,
     int xc, 
     int yc, 
     int hv, 
@@ -30,6 +31,8 @@ void buttonGenerate(
   button->colorR = r;
   button->colorG = g;
   button->colorB = b;
+  
+  memcpy(button->widgetFont, buttonFont, sizeof(&buttonFont));
 }
 
 void buttonAssignSurface(BaseWidget* button, SDL_Surface* surface) {
