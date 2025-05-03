@@ -14,6 +14,7 @@ typedef enum AppErrors {
   AE_CREATE_WINDOW_ERROR,
   AE_GET_SURFACE_ERROR,
   AE_OPEN_FONT_ERROR,
+  AE_TEXT_ENGINE_ERROR,
   AE_PXL_FMT_ERROR,
   AE_FILL_BACKGROUND_ERROR,
   AE_UPDATE_WINDOW_ERROR,
@@ -33,6 +34,7 @@ typedef struct App {
   TTF_Font* mainFont;
   char* mainFontPath;
   float mainFontDefaultSize;
+  TTF_TextEngine* textEngine;
 } App;
 
 AppErrors appInit(App *app);

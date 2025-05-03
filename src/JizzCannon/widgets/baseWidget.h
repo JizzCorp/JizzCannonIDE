@@ -16,6 +16,7 @@ typedef struct BaseWidget {
   uint8_t colorG;
   uint8_t colorB;
   TTF_Font* widgetFont;
+  TTF_TextEngine* textEngine;
 } BaseWidget;
 
 #endif

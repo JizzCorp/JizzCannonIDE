@@ -15,6 +15,7 @@ static bool isPointerIn(BaseWidget* button, const SDL_MouseMotionEvent* motion) 
 void buttonGenerate(
     BaseWidget* button, 
     TTF_Font* buttonFont,
+    TTF_TextEngine* textEngine,
     int xc, 
     int yc, 
     int hv, 
@@ -32,7 +33,15 @@ void buttonGenerate(
   button->colorG = g;
   button->colorB = b;
   
-  memcpy(button->widgetFont, buttonFont, sizeof(&buttonFont));
+  button->widgetFont = TTF_CopyFont(buttonFont);
+  if (button->widgetFont == NULL) {
+    printf("copyFont: fucked some shit up...");
+    return;
+  }
+
+  TTF_SetFontSize(button->widgetFont, 15); // NOTE: font size should be a widget's property
+
+  button->textEngine = textEngine;
 }
 
 void buttonAssignSurface(BaseWidget* button, SDL_Surface* surface) {
@@ -48,19 +57,32 @@ void buttonRender(BaseWidget* button) {
   }
 
   bool fillRect = SDL_FillSurfaceRect(
-        button->widgetSurface, 
-        &button->widgetRect, 
+        button->widgetSurface,
+        &button->widgetRect,
         SDL_MapRGB(
-          pxFmtDetails, 
-          NULL, 
-          button->colorR, 
+          pxFmtDetails,
+          NULL,
+          button->colorR,
           button->colorG,
           button->colorB
         )
     );
-  
+
   if (fillRect == false) {
     printf("Fucked some shit up 2");
+    return;
+  }
+  
+  // NOTE: the button string should be a widget's property 
+  TTF_Text* message = TTF_CreateText(button->textEngine, button->widgetFont, "Load file", strlen("Load file"));  
+  if (message == NULL) {
+    printf("Fucked some shit up n");
+    return;
+  }
+  
+  bool drawText = TTF_DrawSurfaceText(message, button->widgetRect.x, button->widgetRect.y, button->widgetSurface);
+  if (drawText == false) {
+    printf("fucked some shit up");
     return;
   }
 }

@@ -9,6 +9,7 @@
 void buttonGenerate(
     BaseWidget* button, 
     TTF_Font *buttonFont,
+    TTF_TextEngine* textEngine,
     int xc, 
     int yc, 
     int hv, 

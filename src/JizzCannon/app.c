@@ -117,6 +117,11 @@ AppErrors appInit(App *app) {
     return AE_OPEN_FONT_ERROR; 
   }
   
+  app->textEngine = TTF_CreateSurfaceTextEngine();
+  if (app->textEngine == NULL) {
+    return AE_TEXT_ENGINE_ERROR;
+  }
+
   return AE_NO_ERROR;
 }
 
@@ -128,7 +133,7 @@ AppErrors appRun(App* app) {
   appResult = appRenderBackground(app);
   
   BaseWidget myButton;
-  buttonGenerate(&myButton, app->mainFont, 0, 0, 25, 100, 255, 0, 0);
+  buttonGenerate(&myButton, app->mainFont, app->textEngine, 0, 0, 25, 100, 255, 0, 0);
   buttonAssignSurface(&myButton, app->surface);
   buttonRender(&myButton);
   
