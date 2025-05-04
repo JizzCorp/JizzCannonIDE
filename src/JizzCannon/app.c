@@ -133,7 +133,7 @@ AppErrors appRun(App* app) {
   appResult = appRenderBackground(app);
   
   BaseWidget myButton;
-  buttonGenerate(&myButton, app->mainFont, app->textEngine, 0, 0, 25, 100, 255, 0, 0);
+  buttonGenerate(&myButton, app->mainFont, app->textEngine, 15, "Load File", 0, 0, 25, 100, 255, 0, 0);
   buttonAssignSurface(&myButton, app->surface);
   buttonRender(&myButton);
   

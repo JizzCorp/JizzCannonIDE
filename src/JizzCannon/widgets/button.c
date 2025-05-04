@@ -16,6 +16,8 @@ void buttonGenerate(
     BaseWidget* button, 
     TTF_Font* buttonFont,
     TTF_TextEngine* textEngine,
+    float fontSize,
+    char* buttonString,
     int xc, 
     int yc, 
     int hv, 
@@ -38,10 +40,25 @@ void buttonGenerate(
     printf("copyFont: fucked some shit up...");
     return;
   }
+  
+  button->widgetString = buttonString;
 
-  TTF_SetFontSize(button->widgetFont, 15); // NOTE: font size should be a widget's property
+  button->fontSize = fontSize;
+  TTF_SetFontSize(button->widgetFont, button->fontSize); // NOTE: font size should be a widget's property
+  TTF_SetFontStyle(button->widgetFont, TTF_STYLE_BOLD);
 
   button->textEngine = textEngine;
+  button->widgetText = TTF_CreateText(
+      button->textEngine, 
+      button->widgetFont, 
+      button->widgetString,
+      strlen(button->widgetString)
+      );
+
+  if (button->widgetText == NULL) {
+    SDL_Log("fucked some shit up");
+    return;
+  }
 }
 
 void buttonAssignSurface(BaseWidget* button, SDL_Surface* surface) {

@@ -10,6 +10,8 @@ void buttonGenerate(
     BaseWidget* button, 
     TTF_Font *buttonFont,
     TTF_TextEngine* textEngine,
+    float fontSize,
+    char* buttonString,
     int xc, 
     int yc, 
     int hv, 
